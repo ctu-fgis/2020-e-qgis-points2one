@@ -31,6 +31,11 @@ from .resources import *
 from .Point2One_dockwidget import Point2OneDockWidget
 import os.path
 
+from PyQt5.QtGui import QColor, QPixmap
+from qgis.utils import iface
+from qgis.core import *
+from qgis.gui import *
+
 
 class Point2One:
     """QGIS Plugin Implementation."""
@@ -222,6 +227,9 @@ class Point2One:
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = Point2OneDockWidget()
+                self.dockwidget.layers.setFilters(QgsMapLayerProxyModel.PointLayer)
+                self.dockwidget.OK.clicked.connect(self.Point2One)
+
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -230,3 +238,44 @@ class Point2One:
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+
+    #  Start function
+    def Point2One(self):
+
+        layer = self.dockwidget.layers.currentLayer()
+
+        features = layer.getFeatures()
+        PointList = []
+        hodList = []
+        for feat in features:
+            termino = QgsPoint(feat[18], feat[19])
+            PointList.append(termino)
+            ids = feat[1]
+            hodList.append(ids)
+        print(set(hodList))
+        line_start = PointList[0]
+        line_end = PointList[4]
+
+        # create a new memory layer
+        v_layer = QgsVectorLayer("LineString", "line", "memory")
+        v_layer.setCrs(QgsCoordinateReferenceSystem(5514))
+        pr = v_layer.dataProvider()
+
+        body = PointList[1:len(PointList)]
+        line_end = PointList[0]
+        for bod in body:
+            # create a new feature
+            seg = QgsFeature()
+            # add the geometry to the feature,
+            line_start = line_end
+            line_end = bod
+            seg.setGeometry(QgsGeometry.fromPolyline([line_start, line_end]))
+            # ...it was here that you can add attributes, after having defined....
+            # add the geometry to the layer
+            pr.addFeatures([seg])
+            # update extent of the layer (not necessary)
+            v_layer.updateExtents()
+        # show the line
+        print(line_end)
+
+        QgsProject.instance().addMapLayers([v_layer])
