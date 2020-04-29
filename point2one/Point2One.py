@@ -248,7 +248,7 @@ class Point2One:
         PointList = []
         hodList = []
         for feat in features:
-            termino = QgsPoint(feat[18], feat[19])
+            termino = feat.geometry().asPoint()
             PointList.append(termino)
             ids = feat[1]
             hodList.append(ids)
@@ -269,7 +269,7 @@ class Point2One:
             # add the geometry to the feature,
             line_start = line_end
             line_end = bod
-            seg.setGeometry(QgsGeometry.fromPolyline([line_start, line_end]))
+            seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
             # ...it was here that you can add attributes, after having defined....
             # add the geometry to the layer
             pr.addFeatures([seg])
