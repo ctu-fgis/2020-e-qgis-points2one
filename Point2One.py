@@ -262,6 +262,7 @@ class Point2One:
 
         body = PointList[1:len(PointList)]
         line_end = PointList[0]
+        first_point = PointList[0]
         for bod in body:
             # create a new feature
             seg = QgsFeature()
@@ -276,5 +277,12 @@ class Point2One:
             v_layer.updateExtents()
         # show the line
         print(line_end)
+
+        if self.dockwidget.checkBox.isChecked():
+            seg = QgsFeature()
+            seg.setGeometry(QgsGeometry.fromPolylineXY([line_end,first_point]))
+            pr.addFeatures([seg])
+            v_layer.updateExtents()
+
 
         QgsProject.instance().addMapLayers([v_layer])
