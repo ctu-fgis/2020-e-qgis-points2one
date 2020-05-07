@@ -29,7 +29,7 @@
      <widget class="QgsFieldComboBox" name="SortVerticesBy"/>
     </item>
     <item row="5" column="0">
-     <widget class="QCheckBox" name="checkSorfVerticies">
+     <widget class="QCheckBox" name="checkSortVertices">
       <property name="text">
        <string>Sort vertices by:</string>
       </property>
@@ -55,6 +55,9 @@
        <widget class="QCheckBox" name="checkBox">
         <property name="text">
          <string>Closed</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

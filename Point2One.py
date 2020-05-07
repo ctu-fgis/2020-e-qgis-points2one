@@ -233,6 +233,10 @@ class Point2One:
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+            self.dockwidget.layers.layerChanged.connect(self.dockwidget.SortVerticesBy.setLayer)  # setLayer is a native slot function
+            self.dockwidget.layers.layerChanged.connect(self.dockwidget.GroupFeaturesBy.setLayer)  # setLayer is a native slot function
+            self.dockwidget.SortVerticesBy.setLayer(self.dockwidget.layers.currentLayer())
+            self.dockwidget.GroupFeaturesBy.setLayer(self.dockwidget.layers.currentLayer())
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
@@ -244,8 +248,14 @@ class Point2One:
 
         layer = self.dockwidget.layers.currentLayer()
         crs = layer.crs()
-        
-        features = layer.getFeatures()
+
+        features = list(layer.getFeatures())
+
+        jmenoAtributu = self.dockwidget.SortVerticesBy.currentField()
+
+        if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
+            features.sort(key=lambda a: a.attribute(jmenoAtributu))
+
         PointList = []
         hodList = []
         for feat in features:
@@ -253,7 +263,7 @@ class Point2One:
             PointList.append(termino)
             ids = feat[1]
             hodList.append(ids)
-        
+
 
         # create a new memory layer
         v_layer = QgsVectorLayer("LineString", "line", "memory")
@@ -286,3 +296,14 @@ class Point2One:
 
 
         QgsProject.instance().addMapLayers([v_layer])
+
+    def funkceNaRazeniBodu(self, jedna, dva):
+        # list(iface.activeLayer().getFeatures())[0].attribute('SY')
+        hodnotaJedna = ...
+        hodnotaDva = ...
+        if a.foo > b.foo:
+            return 1
+        elif a.foo == b.foo:
+            return 0
+        else:
+            return -1
