@@ -243,7 +243,8 @@ class Point2One:
     def Point2One(self):
 
         layer = self.dockwidget.layers.currentLayer()
-
+        crs = layers.crs()
+        
         features = layer.getFeatures()
         PointList = []
         hodList = []
@@ -252,13 +253,11 @@ class Point2One:
             PointList.append(termino)
             ids = feat[1]
             hodList.append(ids)
-        print(set(hodList))
-        line_start = PointList[0]
-        line_end = PointList[4]
+        
 
         # create a new memory layer
         v_layer = QgsVectorLayer("LineString", "line", "memory")
-        v_layer.setCrs(QgsCoordinateReferenceSystem(5514))
+        v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
         pr = v_layer.dataProvider()
 
         body = PointList[1:len(PointList)]
