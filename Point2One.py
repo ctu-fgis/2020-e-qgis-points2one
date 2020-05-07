@@ -243,7 +243,7 @@ class Point2One:
     def Point2One(self):
 
         layer = self.dockwidget.layers.currentLayer()
-        crs = layers.crs()
+        crs = layer.crs()
         
         features = layer.getFeatures()
         PointList = []
