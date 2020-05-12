@@ -31,6 +31,9 @@ from .resources import *
 from .Point2One_dockwidget import Point2OneDockWidget
 import os.path
 
+# Import pandas
+import pandas as pd
+
 from PyQt5.QtGui import QColor, QPixmap
 from qgis.utils import iface
 from qgis.core import *
@@ -240,7 +243,7 @@ class Point2One:
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
-            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
     #  Start function
@@ -252,9 +255,22 @@ class Point2One:
         features = list(layer.getFeatures())
 
         jmenoAtributu = self.dockwidget.SortVerticesBy.currentField()
+        atr = self.dockwidget.GroupFeaturesBy.currentField()
 
         if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
             features.sort(key=lambda a: a.attribute(jmenoAtributu))
+
+
+        if self.dockwidget.checkGroupBy.isChecked():
+            prov = layer.dataProvider()
+            field_names = [field.name() for field in prov.fields()]
+            f = pd.DataFrame(columns=field_names, data=features)
+            grouped = f.groupby(atr)
+            g = pd.DataFrame(grouped)
+            print(g)
+            p=list(g)
+
+
 
         PointList = []
         hodList = []
@@ -286,7 +302,7 @@ class Point2One:
             # update extent of the layer (not necessary)
             v_layer.updateExtents()
         # show the line
-        print(line_end)
+        # print(line_end)
 
         if self.dockwidget.checkBox.isChecked():
             seg = QgsFeature()
@@ -297,13 +313,13 @@ class Point2One:
 
         QgsProject.instance().addMapLayers([v_layer])
 
-    def funkceNaRazeniBodu(self, jedna, dva):
+    #def funkceNaRazeniBodu(self, jedna, dva):
         # list(iface.activeLayer().getFeatures())[0].attribute('SY')
-        hodnotaJedna = ...
-        hodnotaDva = ...
-        if a.foo > b.foo:
-            return 1
-        elif a.foo == b.foo:
-            return 0
-        else:
-            return -1
+        #hodnotaJedna = ...
+        #hodnotaDva = ...
+        #if a.foo > b.foo:
+        #    return 1
+        #elif a.foo == b.foo:
+        #    return 0
+        #else:
+        #    return -1
