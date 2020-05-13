@@ -243,7 +243,7 @@ class Point2One:
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
-            self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dockwidget)
+            self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
     #  Start function
@@ -254,64 +254,71 @@ class Point2One:
 
         features = list(layer.getFeatures())
 
-        jmenoAtributu = self.dockwidget.SortVerticesBy.currentField()
-        atr = self.dockwidget.GroupFeaturesBy.currentField()
+        sortAttr = self.dockwidget.SortVerticesBy.currentField()
 
         if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
-            features.sort(key=lambda a: a.attribute(jmenoAtributu))
+            features.sort(key=lambda a: a.attribute(sortAttr))
 
+        # attribute name by which we group
+        groupbyAttr = self.dockwidget.GroupFeaturesBy.currentField()
+
+        # dictionary of points grouped by attribute
+        points = {}
 
         if self.dockwidget.checkGroupBy.isChecked():
-            prov = layer.dataProvider()
-            field_names = [field.name() for field in prov.fields()]
-            f = pd.DataFrame(columns=field_names, data=features)
-            grouped = f.groupby(atr)
-            g = pd.DataFrame(grouped)
-            print(g)
-            p=list(g)
+
+            for feature in features:
+
+                # get value of attribute by which we group
+                attrValue = feature.attribute(groupbyAttr)
+
+                if attrValue not in points.keys():
+                    # if there isn't list of points for given attribute value, we create empty list
+                    points[attrValue] = []
+
+                # append this point to list
+                points[attrValue].append(feature.geometry().asPoint())
+
+        else:
+            points["all"] = features
 
 
 
-        PointList = []
-        hodList = []
-        for feat in features:
-            termino = feat.geometry().asPoint()
-            PointList.append(termino)
-            ids = feat[1]
-            hodList.append(ids)
+        for key in points.keys():
 
+            # retrieve single grouped point list from dictionary
+            PointList = points[key]
 
-        # create a new memory layer
-        v_layer = QgsVectorLayer("LineString", "line", "memory")
-        v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
-        pr = v_layer.dataProvider()
+            # create a new memory layer
+            v_layer = QgsVectorLayer("LineString", "line", "memory")
+            v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
+            pr = v_layer.dataProvider()
 
-        body = PointList[1:len(PointList)]
-        line_end = PointList[0]
-        first_point = PointList[0]
-        for bod in body:
-            # create a new feature
-            seg = QgsFeature()
-            # add the geometry to the feature,
-            line_start = line_end
-            line_end = bod
-            seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
-            # ...it was here that you can add attributes, after having defined....
-            # add the geometry to the layer
-            pr.addFeatures([seg])
-            # update extent of the layer (not necessary)
-            v_layer.updateExtents()
-        # show the line
-        # print(line_end)
+            body = PointList[1:len(PointList)]
+            line_end = PointList[0]
+            first_point = PointList[0]
+            for bod in body:
+                # create a new feature
+                seg = QgsFeature()
+                # add the geometry to the feature,
+                line_start = line_end
+                line_end = bod
+                seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
+                # ...it was here that you can add attributes, after having defined....
+                # add the geometry to the layer
+                pr.addFeatures([seg])
+                # update extent of the layer (not necessary)
+                v_layer.updateExtents()
+            # show the line
+            # print(line_end)
 
-        if self.dockwidget.checkBox.isChecked():
-            seg = QgsFeature()
-            seg.setGeometry(QgsGeometry.fromPolylineXY([line_end,first_point]))
-            pr.addFeatures([seg])
-            v_layer.updateExtents()
+            if self.dockwidget.checkBox.isChecked():
+                seg = QgsFeature()
+                seg.setGeometry(QgsGeometry.fromPolylineXY([line_end,first_point]))
+                pr.addFeatures([seg])
+                v_layer.updateExtents()
 
-
-        QgsProject.instance().addMapLayers([v_layer])
+            QgsProject.instance().addMapLayers([v_layer])
 
     #def funkceNaRazeniBodu(self, jedna, dva):
         # list(iface.activeLayer().getFeatures())[0].attribute('SY')
