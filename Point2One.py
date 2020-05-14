@@ -280,7 +280,9 @@ class Point2One:
                 points[attrValue].append(feature.geometry().asPoint())
 
         else:
-            points["all"] = features
+            points["all"] = []
+            for feature in features:
+                points["all"].append(feature.geometry().asPoint())
 
 
 
