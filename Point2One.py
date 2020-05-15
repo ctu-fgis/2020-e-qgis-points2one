@@ -8,7 +8,7 @@
                               -------------------
         begin                : 2020-04-20
         git sha              : $Format:%H$
-        copyright            : (C) 2020 by Frommeltová Eva, Hnilicová Lucie, Hudeček Martin 
+        copyright            : (C) 2020 by Frommeltová Eva, Hnilicová Lucie, Hudeček Martin
         email                : lucie.hnilicova@seznam.cz
  ***************************************************************************/
 
@@ -249,7 +249,6 @@ class Point2One:
      # function -load input point layer -> loadPointLayer() return QgsVectorLayer
     def loadPointLayer(self):
          layer = self.dockwidget.layers.currentLayer()
-         # crs = layer.crs()
          return layer
 
      #function - def createLinestringLayer(self, point_layer, column_order=None, column_group=None, close=False):
@@ -260,7 +259,7 @@ class Point2One:
         # print(feature)
         features = list(point_layer.getFeatures())
         sortAttr = self.dockwidget.SortVerticesBy.currentField()
-
+        crs = point_layer.crs()
 
 
         if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
@@ -298,7 +297,7 @@ class Point2One:
 
             # create a new memory layer
             v_layer = QgsVectorLayer("LineString", "line", "memory")
-            v_layer.setCrs(QgsCoordinateReferenceSystem(5514))
+            v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
             pr = v_layer.dataProvider()
 
             body = PointList[1:len(PointList)]
@@ -327,10 +326,10 @@ class Point2One:
 
             line=QgsProject.instance().addMapLayers([v_layer])
 
-            return line
+        return line
 
     #  Start function
     def Point2One(self):
         point_layer=self.loadPointLayer()
         self.createLinestringLayer(point_layer)
-        print("Ano")
+        print(point_layer)
