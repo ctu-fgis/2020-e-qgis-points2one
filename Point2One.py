@@ -246,15 +246,22 @@ class Point2One:
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-    #  Start function
-    def Point2One(self):
+     # function -load input point layer -> loadPointLayer() return QgsVectorLayer
+    def loadPointLayer(self):
+         layer = self.dockwidget.layers.currentLayer()
+         # crs = layer.crs()
+         return layer
 
-        layer = self.dockwidget.layers.currentLayer()
-        crs = layer.crs()
-
-        features = list(layer.getFeatures())
-
+     #function - def createLinestringLayer(self, point_layer, column_order=None, column_group=None, close=False):
+         #  ...
+    # return line_layer
+    def createLinestringLayer(self,point_layer):
+        # feature = self.loadPointLayer()
+        # print(feature)
+        features = list(point_layer.getFeatures())
         sortAttr = self.dockwidget.SortVerticesBy.currentField()
+
+
 
         if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
             features.sort(key=lambda a: a.attribute(sortAttr))
@@ -284,8 +291,6 @@ class Point2One:
             for feature in features:
                 points["all"].append(feature.geometry().asPoint())
 
-
-
         for key in points.keys():
 
             # retrieve single grouped point list from dictionary
@@ -293,7 +298,7 @@ class Point2One:
 
             # create a new memory layer
             v_layer = QgsVectorLayer("LineString", "line", "memory")
-            v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
+            v_layer.setCrs(QgsCoordinateReferenceSystem(5514))
             pr = v_layer.dataProvider()
 
             body = PointList[1:len(PointList)]
@@ -316,19 +321,16 @@ class Point2One:
 
             if self.dockwidget.checkBox.isChecked():
                 seg = QgsFeature()
-                seg.setGeometry(QgsGeometry.fromPolylineXY([line_end,first_point]))
+                seg.setGeometry(QgsGeometry.fromPolylineXY([line_end, first_point]))
                 pr.addFeatures([seg])
                 v_layer.updateExtents()
 
-            QgsProject.instance().addMapLayers([v_layer])
+            line=QgsProject.instance().addMapLayers([v_layer])
 
-    #def funkceNaRazeniBodu(self, jedna, dva):
-        # list(iface.activeLayer().getFeatures())[0].attribute('SY')
-        #hodnotaJedna = ...
-        #hodnotaDva = ...
-        #if a.foo > b.foo:
-        #    return 1
-        #elif a.foo == b.foo:
-        #    return 0
-        #else:
-        #    return -1
+            return line
+
+    #  Start function
+    def Point2One(self):
+        point_layer=self.loadPointLayer()
+        self.createLinestringLayer(point_layer)
+        print("Ano")
