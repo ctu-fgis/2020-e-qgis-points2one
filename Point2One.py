@@ -240,6 +240,7 @@ class Point2One:
             self.dockwidget.layers.layerChanged.connect(self.dockwidget.GroupFeaturesBy.setLayer)  # setLayer is a native slot function
             self.dockwidget.SortVerticesBy.setLayer(self.dockwidget.layers.currentLayer())
             self.dockwidget.GroupFeaturesBy.setLayer(self.dockwidget.layers.currentLayer())
+            self.dockwidget.output_dir.setStorageMode(QgsFileWidget.GetDirectory)
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
@@ -324,12 +325,48 @@ class Point2One:
                 pr.addFeatures([seg])
                 v_layer.updateExtents()
 
-            line=QgsProject.instance().addMapLayers([v_layer])
+            #line=QgsProject.instance().addMapLayers([v_layer])
+            line=v_layer
 
         return line
+
+    #  function - create geopackage from lines
+    def save_geopackage(self, linestring_layer):
+        save_layer = linestring_layer
+
+        # load path from dockwidget
+        path = self.dockwidget.output_dir.filePath()
+
+        name_linestring_layer = 'linestring_layer.gpkg'
+
+        if not bool(path):
+
+           iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
+           
+        else:
+            data_folder = os.path.join(path, name_linestring_layer)
+            # create geopackage
+            error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
+                                                        data_folder,
+                                                        "")
+            if error[0] == QgsVectorFileWriter.NoError:
+                print("success!")
+
+            # open layer
+            vlayer = QgsVectorLayer(data_folder, "linestring_layer", "ogr")
+
+            if not vlayer.isValid():
+                   print("Layer failed to load!")
+            else:
+                   QgsProject.instance().addMapLayer(vlayer)
+
+
 
     #  Start function
     def Point2One(self):
         point_layer=self.loadPointLayer()
-        self.createLinestringLayer(point_layer)
-        print(point_layer)
+        linestring_layer = self.createLinestringLayer(point_layer)
+        self.save_geopackage(linestring_layer)
+
+
+
