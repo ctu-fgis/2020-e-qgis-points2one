@@ -249,35 +249,21 @@ class Point2One:
 
      # function -load input point layer -> loadPointLayer() return QgsVectorLayer
     def loadPointLayer(self):
-         layer = self.dockwidget.layers.currentLayer()
-         return layer
+         return self.dockwidget.layers.currentLayer()
 
      #function - def createLinestringLayer(self, point_layer, column_order=None, column_group=None, close=False):
          #  ...
     # return line_layer
-    def createLinestringLayer(self,point_layer):
-        # feature = self.loadPointLayer()
-        # print(feature)
-        features = list(point_layer.getFeatures())
-        sortAttr = self.dockwidget.SortVerticesBy.currentField()
-        crs = point_layer.crs()
-
-
-        if self.dockwidget.checkSortVertices.isChecked():  # if checkbox with sorting layer is checked
-            features.sort(key=lambda a: a.attribute(sortAttr))
-
-        # attribute name by which we group
-        groupbyAttr = self.dockwidget.GroupFeaturesBy.currentField()
+    def createLinestringLayer(self, point_layer, sortByAttr, groupByAttr, closed):
+        features = point_layer.getFeatures()
 
         # dictionary of points grouped by attribute
         points = {}
 
-        if self.dockwidget.checkGroupBy.isChecked():
-
+        if groupByAttr:
             for feature in features:
-
                 # get value of attribute by which we group
-                attrValue = feature.attribute(groupbyAttr)
+                attrValue = feature.attribute(groupByAttr)
 
                 if attrValue not in points.keys():
                     # if there isn't list of points for given attribute value, we create empty list
@@ -285,7 +271,6 @@ class Point2One:
 
                 # append this point to list
                 points[attrValue].append(feature.geometry().asPoint())
-
         else:
             points["all"] = []
             for feature in features:
@@ -293,17 +278,18 @@ class Point2One:
 
         # create a new memory layer
         v_layer = QgsVectorLayer("LineString", "line", "memory")
-        v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
+        v_layer.setCrs(QgsCoordinateReferenceSystem(point_layer.crs()))
         pr = v_layer.dataProvider()
 
+        # save features into layer
         for key in points.keys():
-
             # retrieve single grouped point list from dictionary
             PointList = points[key]
 
             body = PointList[1:len(PointList)]
             line_end = PointList[0]
             first_point = PointList[0]
+            segments = []
             for bod in body:
                 # create a new feature
                 seg = QgsFeature()
@@ -313,22 +299,19 @@ class Point2One:
                 seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
                 # ...it was here that you can add attributes, after having defined....
                 # add the geometry to the layer
-                pr.addFeatures([seg])
-                # update extent of the layer (not necessary)
-                v_layer.updateExtents()
-            # show the line
-            # print(line_end)
-
-            if self.dockwidget.checkBox.isChecked():
+                segments.append(seg)
+        
+            if closed:
                 seg = QgsFeature()
                 seg.setGeometry(QgsGeometry.fromPolylineXY([line_end, first_point]))
-                pr.addFeatures([seg])
-                v_layer.updateExtents()
+                segments.append(seg)
 
-            #line=QgsProject.instance().addMapLayers([v_layer])
-            line=v_layer
+            pr.addFeatures(segments)
 
-        return line
+        # update extent of the layer (not necessary)
+        v_layer.updateExtents()
+
+        return v_layer
 
     #  function - create geopackage from lines
     def save_geopackage(self, linestring_layer):
@@ -360,12 +343,22 @@ class Point2One:
             else:
                    QgsProject.instance().addMapLayer(vlayer)
 
-
-
     #  Start function
     def Point2One(self):
+        # load point layer into map canvas
         point_layer=self.loadPointLayer()
-        linestring_layer = self.createLinestringLayer(point_layer)
+        # create linestring from point layer
+        if self.dockwidget.checkSortVertices.isChecked():
+            sortAttr = self.dockwidget.SortVerticesBy.currentField()
+        else:
+            sortAttr = None
+        if self.dockwidget.checkGroupBy.isChecked():
+            groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+        else:
+            groupAttr = None
+        closed = self.dockwidget.checkBox.isChecked()
+        linestring_layer = self.createLinestringLayer(
+            point_layer, sortAttr, groupAttr, closed)
         self.save_geopackage(linestring_layer)
 
 
