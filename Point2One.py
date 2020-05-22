@@ -291,15 +291,15 @@ class Point2One:
             for feature in features:
                 points["all"].append(feature.geometry().asPoint())
 
+        # create a new memory layer
+        v_layer = QgsVectorLayer("LineString", "line", "memory")
+        v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
+        pr = v_layer.dataProvider()
+
         for key in points.keys():
 
             # retrieve single grouped point list from dictionary
             PointList = points[key]
-
-            # create a new memory layer
-            v_layer = QgsVectorLayer("LineString", "line", "memory")
-            v_layer.setCrs(QgsCoordinateReferenceSystem(crs))
-            pr = v_layer.dataProvider()
 
             body = PointList[1:len(PointList)]
             line_end = PointList[0]
