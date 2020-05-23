@@ -374,40 +374,60 @@ class Point2One:
             poly.setGeometry(QgsGeometry.fromPolygonXY([PointList]))
             pr.addFeatures([poly])
             layer.updateExtents()
-            QgsProject.instance().addMapLayers([layer])
+            #QgsProject.instance().addMapLayers([layer])
 
 
         return layer
 
     #  function - create geopackage from lines
-    def save_geopackage(self, linestring_layer):
-        save_layer = linestring_layer
+    def save_geopackage(self, linestring_layer,polygon_layer):
+        if linestring_layer:
+            save_layer = linestring_layer
 
-        # load path from dockwidget
-        path = self.dockwidget.output_dir.filePath()
+            # load path from dockwidget
+            path = self.dockwidget.output_dir.filePath()
 
-        name_linestring_layer = 'linestring_layer.gpkg'
+            name_linestring_layer = 'linestring_layer.gpkg'
 
-        if not bool(path):
-             QgsProject.instance().addMapLayers([save_layer])
-           # iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
+            if not bool(path):
+                   #QgsProject.instance().addMapLayers([save_layer])
+                   iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
            
-        else:
-            data_folder = os.path.join(path, name_linestring_layer)
-            # create geopackage
-            error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
+            else:
+                 data_folder = os.path.join(path, name_linestring_layer)
+                 # create geopackage
+                 error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
                                                         data_folder,
                                                         "")
-            if error[0] == QgsVectorFileWriter.NoError:
-                print("success!")
+                 if error[0] == QgsVectorFileWriter.NoError:
 
-            # open layer
-            vlayer = QgsVectorLayer(data_folder, "linestring_layer", "ogr")
 
-            if not vlayer.isValid():
-                   print("Layer failed to load!")
-            else:
-                   QgsProject.instance().addMapLayer(vlayer)
+                  # open layer
+                  vlayer = QgsVectorLayer(data_folder, "linestring_layer", "ogr")
+                  QgsProject.instance().addMapLayer(vlayer)
+
+        if polygon_layer:
+                  save_layer = polygon_layer
+                  # load path from dockwidget
+                  path = self.dockwidget.output_dir.filePath()
+
+                  name_linestring_layer = 'polygon_layer.gpkg'
+
+                  if not bool(path):
+
+                      iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
+
+                  else:
+                      data_folder = os.path.join(path, name_linestring_layer)
+                      # create geopackage
+                      error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
+                                                                      data_folder,
+                                                                      "")
+                      if error[0] == QgsVectorFileWriter.NoError:
+                          # open layer
+                          vlayer = QgsVectorLayer(data_folder, "polygon_layer", "ogr")
+                          QgsProject.instance().addMapLayer(vlayer)
+
 
     #  Start function
     def Point2One(self):
@@ -429,8 +449,12 @@ class Point2One:
             closed = self.dockwidget.closed.isChecked()
             linestring_layer = self.createLinestringLayer(
                 point_layer, sortAttr, groupAttr, closed)
-            self.save_geopackage(linestring_layer)
 
+            if self.dockwidget.Output_geopackage.isChecked():
+               self.save_geopackage(linestring_layer, polygon_layer = None)
+
+            else:
+                QgsProject.instance().addMapLayers([linestring_layer])
 
         # if you choose polygon
         elif self.dockwidget.create_polygon.isChecked():
@@ -445,6 +469,14 @@ class Point2One:
                 groupAttr = None
 
             polygon_layer = self.createPolygon(point_layer,sortAttr, groupAttr,)
+
+
+            if self.dockwidget.Output_geopackage.isChecked():
+               linestring_layer = None
+               self.save_geopackage(linestring_layer, polygon_layer)
+
+            else:
+                QgsProject.instance().addMapLayers([polygon_layer])
 
         # if is not selected line or polygon
         else:

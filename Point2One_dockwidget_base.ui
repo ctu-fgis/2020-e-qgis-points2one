@@ -15,43 +15,10 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Input vector layer (points)</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="0">
-     <widget class="QPushButton" name="OK">
-      <property name="text">
-       <string>Ok</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QgsMapLayerComboBox" name="layers"/>
-    </item>
-    <item row="6" column="0">
-     <widget class="QgsFieldComboBox" name="SortVerticesBy"/>
-    </item>
-    <item row="5" column="0">
-     <widget class="QCheckBox" name="checkSortVertices">
-      <property name="text">
-       <string>Sort vertices by:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QgsFieldComboBox" name="GroupFeaturesBy"/>
-    </item>
-    <item row="11" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
-    </item>
     <item row="9" column="0">
-     <widget class="QLabel" name="label_3">
+     <widget class="QCheckBox" name="Output_geopackage">
       <property name="text">
-       <string>Output geopackage:</string>
+       <string>Output geopackage</string>
       </property>
      </widget>
     </item>
@@ -103,22 +70,55 @@
       </item>
      </layout>
     </item>
-    <item row="10" column="0">
-     <widget class="QgsFileWidget" name="output_dir"/>
+    <item row="11" column="0">
+     <widget class="QgsFileWidget" name="output_dir" native="true"/>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Input vector layer (points)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QCheckBox" name="checkSortVertices">
+      <property name="text">
+       <string>Sort vertices by:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QgsFieldComboBox" name="SortVerticesBy"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QgsFieldComboBox" name="GroupFeaturesBy"/>
+    </item>
+    <item row="13" column="0">
+     <widget class="QPushButton" name="OK">
+      <property name="text">
+       <string>Ok</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QgsMapLayerComboBox" name="layers"/>
+    </item>
+    <item row="12" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </item>
    </layout>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsFieldComboBox</class>
-   <extends>QComboBox</extends>
-   <header>qgsfieldcombobox.h</header>
-  </customwidget>
-  <customwidget>
    <class>QgsFileWidget</class>
    <extends>QWidget</extends>
    <header>qgsfilewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsFieldComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsfieldcombobox.h</header>
   </customwidget>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
