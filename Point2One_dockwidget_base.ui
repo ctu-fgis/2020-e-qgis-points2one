@@ -78,21 +78,21 @@
     <item row="2" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="create_polygon">
         <property name="text">
          <string>Create polygons</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="create_lines">
         <property name="text">
          <string>Create lines</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="closed">
         <property name="text">
          <string>Closed</string>
         </property>

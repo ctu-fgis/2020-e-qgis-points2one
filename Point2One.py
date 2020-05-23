@@ -251,9 +251,7 @@ class Point2One:
     def loadPointLayer(self):
          return self.dockwidget.layers.currentLayer()
 
-     #function - def createLinestringLayer(self, point_layer, column_order=None, column_group=None, close=False):
-         #  ...
-    # return line_layer
+
     def createLinestringLayer(self, point_layer, sortByAttr, groupByAttr, closed):
         features = point_layer.getFeatures()
 
@@ -286,16 +284,16 @@ class Point2One:
             # retrieve single grouped point list from dictionary
             PointList = points[key]
 
-            body = PointList[1:len(PointList)]
+            verticies = PointList[1:len(PointList)]
             line_end = PointList[0]
             first_point = PointList[0]
             segments = []
-            for bod in body:
+            for Point in verticies:
                 # create a new feature
                 seg = QgsFeature()
                 # add the geometry to the feature,
                 line_start = line_end
-                line_end = bod
+                line_end = Point
                 seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
                 # ...it was here that you can add attributes, after having defined....
                 # add the geometry to the layer
@@ -313,6 +311,45 @@ class Point2One:
 
         return v_layer
 
+    def createPolygon(self,point_layer, sortByAttr, groupByAttr,):
+        features = point_layer.getFeatures()
+
+        # dictionary of points grouped by attribute
+        points = {}
+
+        if groupByAttr:
+            for feature in features:
+                # get value of attribute by which we group
+                attrValue = feature.attribute(groupByAttr)
+
+                if attrValue not in points.keys():
+                    # if there isn't list of points for given attribute value, we create empty list
+                    points[attrValue] = []
+
+                # append this point to list
+                points[attrValue].append(feature.geometry().asPoint())
+        else:
+            points["all"] = []
+            for feature in features:
+                points["all"].append(feature.geometry().asPoint())
+
+        layer = QgsVectorLayer('Polygon', 'poly' , "memory")
+        layer.setCrs(QgsCoordinateReferenceSystem(point_layer.crs()))
+        pr = layer.dataProvider()
+        poly = QgsFeature()
+
+        for key in points.keys():
+            # retrieve single grouped point list from dictionary
+            PointList = points[key]
+
+            poly.setGeometry(QgsGeometry.fromPolygonXY([PointList]))
+            pr.addFeatures([poly])
+            layer.updateExtents()
+            QgsProject.instance().addMapLayers([layer])
+
+
+        return layer
+
     #  function - create geopackage from lines
     def save_geopackage(self, linestring_layer):
         save_layer = linestring_layer
@@ -323,8 +360,8 @@ class Point2One:
         name_linestring_layer = 'linestring_layer.gpkg'
 
         if not bool(path):
-
-           iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
+             QgsProject.instance().addMapLayers([save_layer])
+           # iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
            
         else:
             data_folder = os.path.join(path, name_linestring_layer)
@@ -347,19 +384,44 @@ class Point2One:
     def Point2One(self):
         # load point layer into map canvas
         point_layer=self.loadPointLayer()
-        # create linestring from point layer
-        if self.dockwidget.checkSortVertices.isChecked():
-            sortAttr = self.dockwidget.SortVerticesBy.currentField()
+
+        # selection of line or polygon
+        # if you choose line
+        if self.dockwidget.create_lines.isChecked():
+            # create linestring from point layer
+            if self.dockwidget.checkSortVertices.isChecked():
+                sortAttr = self.dockwidget.SortVerticesBy.currentField()
+            else:
+                sortAttr = None
+            if self.dockwidget.checkGroupBy.isChecked():
+                groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+            else:
+                groupAttr = None
+            closed = self.dockwidget.closed.isChecked()
+            linestring_layer = self.createLinestringLayer(
+                point_layer, sortAttr, groupAttr, closed)
+            self.save_geopackage(linestring_layer)
+
+
+        # if you choose polygon
+        elif self.dockwidget.create_polygon.isChecked():
+
+            if self.dockwidget.checkSortVertices.isChecked():
+                sortAttr = self.dockwidget.SortVerticesBy.currentField()
+            else:
+                sortAttr = None
+            if self.dockwidget.checkGroupBy.isChecked():
+                groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+            else:
+                groupAttr = None
+
+            polygon_layer = self.createPolygon(point_layer,sortAttr, groupAttr,)
+
+        # if is not selected line or polygon
         else:
-            sortAttr = None
-        if self.dockwidget.checkGroupBy.isChecked():
-            groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
-        else:
-            groupAttr = None
-        closed = self.dockwidget.checkBox.isChecked()
-        linestring_layer = self.createLinestringLayer(
-            point_layer, sortAttr, groupAttr, closed)
-        self.save_geopackage(linestring_layer)
+            iface.messageBar().pushMessage("Error", "choose lines or polygon", level=Qgis.Critical)
+
+
 
 
 
