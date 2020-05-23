@@ -258,10 +258,26 @@ class Point2One:
         # dictionary of points grouped by attribute
         points = {}
 
+        if sortByAttr:
+            features = list(point_layer.getFeatures())
+
+            unique = []
+
+            for feature in features:
+                attrValue = feature.attribute(sortByAttr)
+                if attrValue not in unique:
+                    unique.append(attrValue)
+                else:
+                    iface.messageBar().pushMessage("Warning", "values in the attribute are not unique ", level=Qgis.Warning)
+
+            features.sort(key=lambda a: a.attribute(sortByAttr))
+
+
         if groupByAttr:
             for feature in features:
                 # get value of attribute by which we group
                 attrValue = feature.attribute(groupByAttr)
+
 
                 if attrValue not in points.keys():
                     # if there isn't list of points for given attribute value, we create empty list
@@ -316,6 +332,19 @@ class Point2One:
 
         # dictionary of points grouped by attribute
         points = {}
+
+        if sortByAttr:
+            features = list(point_layer.getFeatures())
+            unique = []
+
+            for feature in features:
+                attrValue = feature.attribute(sortByAttr)
+                if attrValue not in unique:
+                    unique.append(attrValue)
+                else:
+                    iface.messageBar().pushMessage("Warning", "values in the attribute are not unique ", level=Qgis.Warning)
+
+            features.sort(key=lambda a: a.attribute(sortByAttr))
 
         if groupByAttr:
             for feature in features:
