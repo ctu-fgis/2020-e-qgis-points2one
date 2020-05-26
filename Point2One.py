@@ -403,7 +403,7 @@ class Point2One:
 
 
                   # open layer
-                  vlayer = QgsVectorLayer(data_folder, "linestring_layer", "ogr")
+                  vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
                   QgsProject.instance().addMapLayer(vlayer)
 
         if polygon_layer:
@@ -425,7 +425,7 @@ class Point2One:
                                                                       "")
                       if error[0] == QgsVectorFileWriter.NoError:
                           # open layer
-                          vlayer = QgsVectorLayer(data_folder, "polygon_layer", "ogr")
+                          vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
                           QgsProject.instance().addMapLayer(vlayer)
 
 
@@ -440,10 +440,14 @@ class Point2One:
             # create linestring from point layer
             if self.dockwidget.checkSortVertices.isChecked():
                 sortAttr = self.dockwidget.SortVerticesBy.currentField()
+                if sortAttr == "":
+                    iface.messageBar().pushMessage("Error", "You have to select attribute to sort by", level=Qgis.Critical)
             else:
                 sortAttr = None
             if self.dockwidget.checkGroupBy.isChecked():
                 groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+                if groupAttr == "":
+                    iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
             else:
                 groupAttr = None
             closed = self.dockwidget.closed.isChecked()
@@ -461,10 +465,14 @@ class Point2One:
 
             if self.dockwidget.checkSortVertices.isChecked():
                 sortAttr = self.dockwidget.SortVerticesBy.currentField()
+                if sortAttr == "":
+                    iface.messageBar().pushMessage("Error", "You have to select attribute to sort by", level=Qgis.Critical)
             else:
                 sortAttr = None
             if self.dockwidget.checkGroupBy.isChecked():
                 groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+                if groupAttr == "":
+                    iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
             else:
                 groupAttr = None
 
