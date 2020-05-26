@@ -387,7 +387,7 @@ class Point2One:
             # load path from dockwidget
             path = self.dockwidget.output_dir.filePath()
 
-            name_linestring_layer = 'linestring_layer.gpkg'
+            name_linestring_layer = self.dockwidget.Filename.text() + '.gpkg'
 
             if not bool(path):
                    #QgsProject.instance().addMapLayers([save_layer])
@@ -411,7 +411,7 @@ class Point2One:
                   # load path from dockwidget
                   path = self.dockwidget.output_dir.filePath()
 
-                  name_linestring_layer = 'polygon_layer.gpkg'
+                  name_linestring_layer = self.dockwidget.Filename.text() + '.gpkg'
 
                   if not bool(path):
 
