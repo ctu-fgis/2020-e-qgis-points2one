@@ -327,7 +327,7 @@ class Point2One:
 
         return v_layer
 
-    def createPolygon(self,point_layer, sortByAttr, groupByAttr,):
+    def createPolygonLayer(self,point_layer, sortByAttr, groupByAttr):
         features = point_layer.getFeatures()
 
         # dictionary of points grouped by attribute
@@ -380,117 +380,73 @@ class Point2One:
         return layer
 
     #  function - create geopackage from lines
-    def save_geopackage(self, linestring_layer,polygon_layer):
-        if linestring_layer:
-            save_layer = linestring_layer
+    def save_geopackage(self, save_layer):
+        # load path from dockwidget
+        path = self.dockwidget.output_dir.filePath()
 
-            # load path from dockwidget
-            path = self.dockwidget.output_dir.filePath()
+        name_layer = self.dockwidget.Filename.text() + '.gpkg'
 
-            name_linestring_layer = self.dockwidget.Filename.text() + '.gpkg'
-
-            if not bool(path):
-                   #QgsProject.instance().addMapLayers([save_layer])
-                   iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
-           
-            else:
-                 data_folder = os.path.join(path, name_linestring_layer)
-                 # create geopackage
-                 error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
+        if not path:
+            iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
+            return
+        
+        data_folder = os.path.join(path, name_layer)
+        # create geopackage
+        error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
                                                         data_folder,
                                                         "")
-                 if error[0] == QgsVectorFileWriter.NoError:
-
-
-                  # open layer
-                  vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
-                  QgsProject.instance().addMapLayer(vlayer)
-
-        if polygon_layer:
-                  save_layer = polygon_layer
-                  # load path from dockwidget
-                  path = self.dockwidget.output_dir.filePath()
-
-                  name_linestring_layer = self.dockwidget.Filename.text() + '.gpkg'
-
-                  if not bool(path):
-
-                      iface.messageBar().pushMessage("Error", "set output", level=Qgis.Critical)
-
-                  else:
-                      data_folder = os.path.join(path, name_linestring_layer)
-                      # create geopackage
-                      error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
-                                                                      data_folder,
-                                                                      "")
-                      if error[0] == QgsVectorFileWriter.NoError:
-                          # open layer
-                          vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
-                          QgsProject.instance().addMapLayer(vlayer)
-
+        if error[0] != QgsVectorFileWriter.NoError:
+            # TODO: show error message
+            return
+        
+        # open layer
+        vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
+        QgsProject.instance().addMapLayer(vlayer)
 
     #  Start function
     def Point2One(self):
         # load point layer into map canvas
         point_layer=self.loadPointLayer()
 
+        # get input parameters
+        if self.dockwidget.checkSortVertices.isChecked():
+            sortAttr = self.dockwidget.SortVerticesBy.currentField()
+            if sortAttr == "":
+                iface.messageBar().pushMessage("Error", "You have to select attribute to sort by", level=Qgis.Critical)
+        else:
+            sortAttr = None
+        if self.dockwidget.checkGroupBy.isChecked():
+            groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
+            if groupAttr == "":
+                iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
+        else:
+            groupAttr = None
+        
         # selection of line or polygon
         # if you choose line
         if self.dockwidget.create_lines.isChecked():
-            # create linestring from point layer
-            if self.dockwidget.checkSortVertices.isChecked():
-                sortAttr = self.dockwidget.SortVerticesBy.currentField()
-                if sortAttr == "":
-                    iface.messageBar().pushMessage("Error", "You have to select attribute to sort by", level=Qgis.Critical)
-            else:
-                sortAttr = None
-            if self.dockwidget.checkGroupBy.isChecked():
-                groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
-                if groupAttr == "":
-                    iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
-            else:
-                groupAttr = None
             closed = self.dockwidget.closed.isChecked()
-            linestring_layer = self.createLinestringLayer(
+
+            output_layer = self.createLinestringLayer(
                 point_layer, sortAttr, groupAttr, closed)
-
-            if self.dockwidget.Output_geopackage.isChecked():
-               self.save_geopackage(linestring_layer, polygon_layer = None)
-
-            else:
-                QgsProject.instance().addMapLayers([linestring_layer])
 
         # if you choose polygon
         elif self.dockwidget.create_polygon.isChecked():
-
-            if self.dockwidget.checkSortVertices.isChecked():
-                sortAttr = self.dockwidget.SortVerticesBy.currentField()
-                if sortAttr == "":
-                    iface.messageBar().pushMessage("Error", "You have to select attribute to sort by", level=Qgis.Critical)
-            else:
-                sortAttr = None
-            if self.dockwidget.checkGroupBy.isChecked():
-                groupAttr = self.dockwidget.GroupFeaturesBy.currentField()
-                if groupAttr == "":
-                    iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
-            else:
-                groupAttr = None
-
-            polygon_layer = self.createPolygon(point_layer,sortAttr, groupAttr,)
-
-
-            if self.dockwidget.Output_geopackage.isChecked():
-               linestring_layer = None
-               self.save_geopackage(linestring_layer, polygon_layer)
-
-            else:
-                QgsProject.instance().addMapLayers([polygon_layer])
+            
+            output_layer = self.createPolygonLayer(
+                point_layer,sortAttr, groupAttr,)
 
         # if is not selected line or polygon
         else:
             iface.messageBar().pushMessage("Error", "choose lines or polygon", level=Qgis.Critical)
+            return
 
+        if self.dockwidget.Output_geopackage.isChecked():
+            self.save_geopackage(output_layer)
+        else:
+            QgsProject.instance().addMapLayers([output_layer])
 
+            
 
 
 
