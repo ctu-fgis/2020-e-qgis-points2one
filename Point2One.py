@@ -380,7 +380,7 @@ class Point2One:
         return layer
 
     #  function - create geopackage from lines
-    def save_geopackage(self, save_layer):
+    def saveGeopackage(self, save_layer):
         # load path from dockwidget
         path = self.dockwidget.output_dir.filePath()
 
@@ -442,7 +442,7 @@ class Point2One:
             return
 
         if self.dockwidget.Output_geopackage.isChecked():
-            self.save_geopackage(output_layer)
+            self.saveGeopackage(output_layer)
         else:
             QgsProject.instance().addMapLayers([output_layer])
 
