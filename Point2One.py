@@ -252,43 +252,7 @@ class Point2One:
          return self.dockwidget.layers.currentLayer()
 
 
-    def createLinestringLayer(self, point_layer, sortByAttr, groupByAttr, closed):
-        features = point_layer.getFeatures()
-
-        # dictionary of points grouped by attribute
-        points = {}
-
-        if sortByAttr:
-            features = list(point_layer.getFeatures())
-
-            unique = []
-
-            for feature in features:
-                attrValue = feature.attribute(sortByAttr)
-                if attrValue not in unique:
-                    unique.append(attrValue)
-                else:
-                    iface.messageBar().pushMessage("Warning", "values in the attribute are not unique ", level=Qgis.Warning)
-
-            features.sort(key=lambda a: a.attribute(sortByAttr))
-
-
-        if groupByAttr:
-            for feature in features:
-                # get value of attribute by which we group
-                attrValue = feature.attribute(groupByAttr)
-
-
-                if attrValue not in points.keys():
-                    # if there isn't list of points for given attribute value, we create empty list
-                    points[attrValue] = []
-
-                # append this point to list
-                points[attrValue].append(feature.geometry().asPoint())
-        else:
-            points["all"] = []
-            for feature in features:
-                points["all"].append(feature.geometry().asPoint())
+    def createLinestringLayer(self, points, point_layer, closed):
 
         # create a new memory layer
         v_layer = QgsVectorLayer("LineString", "line", "memory")
@@ -327,40 +291,7 @@ class Point2One:
 
         return v_layer
 
-    def createPolygonLayer(self,point_layer, sortByAttr, groupByAttr):
-        features = point_layer.getFeatures()
-
-        # dictionary of points grouped by attribute
-        points = {}
-
-        if sortByAttr:
-            features = list(point_layer.getFeatures())
-            unique = []
-
-            for feature in features:
-                attrValue = feature.attribute(sortByAttr)
-                if attrValue not in unique:
-                    unique.append(attrValue)
-                else:
-                    iface.messageBar().pushMessage("Warning", "values in the attribute are not unique ", level=Qgis.Warning)
-
-            features.sort(key=lambda a: a.attribute(sortByAttr))
-
-        if groupByAttr:
-            for feature in features:
-                # get value of attribute by which we group
-                attrValue = feature.attribute(groupByAttr)
-
-                if attrValue not in points.keys():
-                    # if there isn't list of points for given attribute value, we create empty list
-                    points[attrValue] = []
-
-                # append this point to list
-                points[attrValue].append(feature.geometry().asPoint())
-        else:
-            points["all"] = []
-            for feature in features:
-                points["all"].append(feature.geometry().asPoint())
+    def createPolygonLayer(self, points, point_layer):
 
         layer = QgsVectorLayer('Polygon', 'poly' , "memory")
         layer.setCrs(QgsCoordinateReferenceSystem(point_layer.crs()))
@@ -403,6 +334,41 @@ class Point2One:
         vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
         QgsProject.instance().addMapLayer(vlayer)
 
+    def generatePoints(self, sortAttr, groupAttr, point_layer):
+
+        # dictionary of points grouped by attribute
+        points = {}
+        features = list(point_layer.getFeatures())
+
+        if sortAttr:
+            unique = []
+            for feature in features:
+                attrValue = feature.attribute(sortAttr)
+                if attrValue not in unique:
+                    unique.append(attrValue)
+                else:
+                    iface.messageBar().pushMessage("Warning", "values in the attribute are not unique ", level=Qgis.Warning)
+
+            features.sort(key=lambda a: a.attribute(sortAttr))
+
+        if groupAttr:
+            for feature in features:
+                # get value of attribute by which we group
+                attrValue = feature.attribute(groupAttr)
+
+                if attrValue not in points.keys():
+                    # if there isn't list of points for given attribute value, we create empty list
+                    points[attrValue] = []
+
+                # append this point to list
+                points[attrValue].append(feature.geometry().asPoint())
+        else:
+            points["all"] = []
+            for feature in features:
+                points["all"].append(feature.geometry().asPoint())
+
+        return points
+
     #  Start function
     def Point2One(self):
         # load point layer into map canvas
@@ -422,19 +388,21 @@ class Point2One:
         else:
             groupAttr = None
         
+        features = point_layer.getFeatures()
+
+        points = self.generatePoints(sortAttr, groupAttr, point_layer)
+
         # selection of line or polygon
         # if you choose line
         if self.dockwidget.create_lines.isChecked():
             closed = self.dockwidget.closed.isChecked()
 
-            output_layer = self.createLinestringLayer(
-                point_layer, sortAttr, groupAttr, closed)
+            output_layer = self.createLinestringLayer(points, point_layer, closed)
 
         # if you choose polygon
         elif self.dockwidget.create_polygon.isChecked():
             
-            output_layer = self.createPolygonLayer(
-                point_layer,sortAttr, groupAttr,)
+            output_layer = self.createPolygonLayer(points, point_layer)
 
         # if is not selected line or polygon
         else:
