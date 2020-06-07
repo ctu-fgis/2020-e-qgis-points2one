@@ -387,9 +387,8 @@ class Point2One:
                 iface.messageBar().pushMessage("Error", "You have to select attribute to group by", level=Qgis.Critical)
         else:
             groupAttr = None
-        
-        features = point_layer.getFeatures()
 
+        # generate vertices for linestrings/polygons
         points = self.generatePoints(sortAttr, groupAttr, point_layer)
 
         # selection of line or polygon
@@ -406,7 +405,7 @@ class Point2One:
 
         # if is not selected line or polygon
         else:
-            iface.messageBar().pushMessage("Error", "choose lines or polygon", level=Qgis.Critical)
+            iface.messageBar().pushMessage("Error", "Choose lines or polygon", level=Qgis.Critical)
             return
 
         if self.dockwidget.Output_geopackage.isChecked():
