@@ -3,7 +3,7 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Point2One
+name=Points2One
 qgisMinimumVersion=3.0
 description=This plugin joins the vector layer of points into one line / polygon
 version=0.1
