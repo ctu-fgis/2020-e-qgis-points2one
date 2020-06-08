@@ -31,9 +31,6 @@ from .resources import *
 from .Point2One_dockwidget import Point2OneDockWidget
 import os.path
 
-# Import pandas
-import pandas as pd
-
 from PyQt5.QtGui import QColor, QPixmap
 from qgis.utils import iface
 from qgis.core import *
@@ -247,11 +244,11 @@ class Point2One:
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-     # function -load input point layer -> loadPointLayer() return QgsVectorLayer
+     # The function loads input point layer
     def loadPointLayer(self):
          return self.dockwidget.layers.currentLayer()
 
-
+    # The function creates linestring from point layer
     def createLinestringLayer(self, points, point_layer, closed):
 
         # create a new memory layer
@@ -268,17 +265,16 @@ class Point2One:
             line_end = PointList[0]
             first_point = PointList[0]
             segments = []
-            for Point in verticies:
+            for point in verticies:
                 # create a new feature
                 seg = QgsFeature()
-                # add the geometry to the feature,
                 line_start = line_end
-                line_end = Point
+                line_end = point
                 seg.setGeometry(QgsGeometry.fromPolylineXY([line_start, line_end]))
-                # ...it was here that you can add attributes, after having defined....
                 # add the geometry to the layer
                 segments.append(seg)
-        
+
+            # checkbox close, creating a line between the first and last point
             if closed:
                 seg = QgsFeature()
                 seg.setGeometry(QgsGeometry.fromPolylineXY([line_end, first_point]))
@@ -291,6 +287,7 @@ class Point2One:
 
         return v_layer
 
+    # The function creates polygons from point layer
     def createPolygonLayer(self, points, point_layer):
 
         layer = QgsVectorLayer('Polygon', 'poly' , "memory")
@@ -301,20 +298,17 @@ class Point2One:
         for key in points.keys():
             # retrieve single grouped point list from dictionary
             PointList = points[key]
-
             poly.setGeometry(QgsGeometry.fromPolygonXY([PointList]))
             pr.addFeatures([poly])
             layer.updateExtents()
-            #QgsProject.instance().addMapLayers([layer])
-
 
         return layer
 
-    #  function - create geopackage from lines
+    # The function saves the created layer to geopackage
     def saveGeopackage(self, save_layer):
         # load path from dockwidget
         path = self.dockwidget.output_dir.filePath()
-
+        # load filename
         name_layer = self.dockwidget.Filename.text() + '.gpkg'
 
         if not path:
@@ -322,26 +316,28 @@ class Point2One:
             return
         
         data_folder = os.path.join(path, name_layer)
+
         # create geopackage
         error = QgsVectorFileWriter.writeAsVectorFormat(save_layer,
                                                         data_folder,
                                                         "")
         if error[0] != QgsVectorFileWriter.NoError:
-            # TODO: show error message
+            iface.messageBar().pushMessage("Error", "Creating of the geopackage is failed", level=Qgis.Critical)
             return
         
         # open layer
         vlayer = QgsVectorLayer(data_folder, self.dockwidget.Filename.text(), "ogr")
         QgsProject.instance().addMapLayer(vlayer)
 
+    # The function sorts by attributes and group by attributes
     def generatePoints(self, sortAttr, groupAttr, point_layer):
-
-        # dictionary of points grouped by attribute
         points = {}
         features = list(point_layer.getFeatures())
 
+        # sort by attributes
         if sortAttr:
             unique = []
+            # testing a unique value in attribute
             for feature in features:
                 attrValue = feature.attribute(sortAttr)
                 if attrValue not in unique:
@@ -351,6 +347,7 @@ class Point2One:
 
             features.sort(key=lambda a: a.attribute(sortAttr))
 
+        # group by attributes
         if groupAttr:
             for feature in features:
                 # get value of attribute by which we group
@@ -369,8 +366,11 @@ class Point2One:
 
         return points
 
-    #  Start function
     def Point2One(self):
+        self.iface.messageBar().pushMessage(
+            "Warning", "It may take a while! Don't close QGIS!", level=Qgis.Warning
+        )
+
         # load point layer into map canvas
         point_layer=self.loadPointLayer()
 
@@ -408,8 +408,11 @@ class Point2One:
             iface.messageBar().pushMessage("Error", "Choose lines or polygon", level=Qgis.Critical)
             return
 
+        # if is check geopackage
         if self.dockwidget.Output_geopackage.isChecked():
             self.saveGeopackage(output_layer)
+
+        # if isn't check geopackage, created layer in opened into map canvas
         else:
             QgsProject.instance().addMapLayers([output_layer])
 
