@@ -5,25 +5,22 @@
 
 Points2One's documentation
 ============================================
+
 Points2One module for QGIS is a tool that allows you to create either a linestring or a polygon layer using a point layer connected however you like based on input parameters.
 
-The plugin is available for version QGIS 3.
+The plugin is available for version QGIS 3 and it is implemented in the Python programming language. 
+Our plugin is experimental. It is not in the QGIS plugin repository.
 
 The plugin can be downloaded `here
-<https://github.com/ctu-fgis/2020-e-qgis-points2one>`__
-
-
-.. toctree::
-   :maxdepth: 2
-
+<https://github.com/ctu-fgis/2020-e-qgis-points2one.git>`__   
 
 Content
----------------------
-`Installation
-<installation.html>`__
+------------
+..  toctree :: 
+    :maxdepth: 2
 
-`Tutorial
-<tutorial.html>`__
+    installation
+    tutorial
+    about
 
 
-.. note::The project was created in the subject Free Software GIS, Department of Geomatics, Faculty of Civil Engineering CTU
