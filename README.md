@@ -1,1 +1,0 @@
-# 2020-e-qgis-points2one

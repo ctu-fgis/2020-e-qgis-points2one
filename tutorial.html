@@ -1,0 +1,140 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tutorial &#8212; Points2One 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="About plugin" href="about.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="about.html" title="About plugin"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Points2One 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="about.html"
+                        title="next chapter">About plugin</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>You can watch <a class="reference external" href="https://www.youtube.com/watch?v=BFo1Y43wTKQ&amp;fbclid=IwAR10lgU6CXsMvig2GXFhH0-hXp2Hi8XPJS3spA0OUF8Gj0NoI43iZdy8a-s">Video tutorial</a>
+or you can read it:</p>
+<p>In the Input vector layer section there is a combo box where you can choose which point layer you want to use.</p>
+<img alt="_images/points2one.png" src="_images/points2one.png" />
+<p>Under the combo box there are 3 checkboxes:</p>
+<ul class="simple">
+<li><p><strong>Create polygon</strong> - create a polygon layer</p></li>
+</ul>
+<img alt="_images/polygon.png" src="_images/polygon.png" />
+<ul class="simple">
+<li><p><strong>Create lines</strong> - create a linestring layer</p></li>
+</ul>
+<img alt="_images/line.png" src="_images/line.png" />
+<ul class="simple">
+<li><p><strong>Closed</strong> - the last point be connected to first one, completing the circuit</p></li>
+</ul>
+<img alt="_images/closed.png" src="_images/closed.png" />
+<p>You can chosse some parameters to connect the points. By default, the points are connected in the order they are in the selected point layer.</p>
+<p>If you don’t check Create polygon or Create lines it displays error message.</p>
+<img alt="_images/error_choose.png" src="_images/error_choose.png" />
+<p>If you check</p>
+<ul class="simple">
+<li><p><strong>Sort vertices by</strong> - select an attribute, the order of connecting points will change from the lowest to the highest number in selected attribute or alphabetically from A-Z if the attribute is a string</p></li>
+</ul>
+<img alt="_images/sort.png" src="_images/sort.png" />
+<p>If you choose an attribute which does not contain unique values. It displays warning message.</p>
+<img alt="_images/unique.png" src="_images/unique.png" />
+<ul class="simple">
+<li><p><strong>Group features by</strong> - it divide the selected point layer into groups that have the same value in the attribute selected in the combo box</p></li>
+</ul>
+<img alt="_images/group.png" src="_images/group.png" />
+<p>If you check <strong>output geopackage</strong></p>
+<p>The plugin is saving output geopackage, where you type in the name of the newly created layer and path to where it should be saved. By pressing <strong>OK</strong> it will create a geopackage that includes all informations about the newly created layer.</p>
+<img alt="_images/geopackage.png" src="_images/geopackage.png" />
+<p>There is a limitation to that: if you already have a geopackage with that name saved and you want to create a different layer with the same name, the new layer will not be created and it will display error message , so there are 2 choices, either you change the filename or you will have to delete the geopackage with the name you want to use first.</p>
+<img alt="_images/error_geopackage.png" src="_images/error_geopackage.png" />
+<p>If you don’t check <strong>output geopackage</strong></p>
+<p>The new layer will still be created, but saved only as an in-memory layer therefore you will lose the data after you close the project.</p>
+<img alt="_images/memorylayer.png" src="_images/memorylayer.png" />
+<p>If you want to run the plugin you have to press <strong>OK</strong> always.</p>
+<p>Sometimes it may take a while. Please, don’t close QGIS and wait. It depends on the amount of points.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="about.html" title="About plugin"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Points2One 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, CTU GeoForAll Lab (Frommeltová Eva, Hnilicová Lucie, Hudeček Martin).
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.3.
+    </div>
+  </body>
+</html>

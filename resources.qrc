@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/Point2One" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
